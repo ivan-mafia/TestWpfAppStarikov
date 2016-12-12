@@ -5,7 +5,7 @@
 				  xmlns:views="clr-namespace:TestWpfAppStarikov.Views"
 				  xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
 				  xmlns:System="clr-namespace:System;assembly=mscorlib"
-				  Width="400" Height="300" SizeToContent="Manual">
+				  Width="300" Height="200" SizeToContent="Manual" Background="#1E1E1E">
 
     <!-- Resources -->
     <catel:DataWindow.Resources>

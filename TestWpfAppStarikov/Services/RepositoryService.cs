@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WPF.GettingStarted.Services
+namespace TestWpfAppStarikov.Services
 {
     using TestWpfAppStarikov.Models;
 
-    using WPF.GettingStarted.DbContext;
+    using TestWpfAppStarikov.DbContext;
 
     public class RepositoryService : IRepositoryService
     {

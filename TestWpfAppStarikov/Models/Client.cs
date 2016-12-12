@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 namespace TestWpfAppStarikov.Models
 {
     using System.Collections.ObjectModel;
+    using System.Windows;
+
     using Catel.Data;
 
     public class Client : ModelBase
@@ -71,12 +73,14 @@ namespace TestWpfAppStarikov.Models
         {
             if (string.IsNullOrWhiteSpace(FirstName))
             {
-                validationResults.Add(FieldValidationResult.CreateError("FirstName", "The first name is required"));
+                var validMsg = (string)Application.Current.FindResource("FirstNameIsRequired");
+                validationResults.Add(FieldValidationResult.CreateError("FirstName", validMsg));
             }
 
             if (string.IsNullOrWhiteSpace(LastName))
             {
-                validationResults.Add(FieldValidationResult.CreateError("LastName", "The last name is required"));
+                var validMsg = (string)Application.Current.FindResource("LastNameIsRequired");
+                validationResults.Add(FieldValidationResult.CreateError("LastName", validMsg));
             }
         }
 

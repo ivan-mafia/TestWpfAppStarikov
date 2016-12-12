@@ -1,4 +1,4 @@
-﻿namespace WPF.GettingStarted.Services
+﻿namespace TestWpfAppStarikov.Services
 {
     using System.Collections.Generic;
 

@@ -2,9 +2,11 @@
                   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 				  xmlns:catel="http://catel.codeplex.com"
+                  xmlns:glob="clr-namespace:System.Globalization;assembly=mscorlib"
 				  xmlns:views="clr-namespace:TestWpfAppStarikov.Views"
 				  xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-				  ShowInTaskbar="True" ResizeMode="CanResize" SizeToContent="Manual" WindowStartupLocation="Manual" WindowState="Maximized">
+				  ShowInTaskbar="True" ResizeMode="CanResize" SizeToContent="Manual" WindowStartupLocation="Manual" WindowState="Normal" Background="#1E1E1E"
+                  Height="500" Width="600">
 
     <!-- Resources -->
     <catel:DataWindow.Resources>
@@ -28,33 +30,39 @@
                 <ColumnDefinition Width="*" />
             </catel:StackGrid.ColumnDefinitions>
 
-            <Label Content="Filter:" />
-            <TextBox Text="{Binding SearchFilter}">
+            <Label Content="{StaticResource LastNameFilter}" Margin="0,8,0,8" />
+            <TextBox Text="{Binding SearchFilter}" Margin="0,8,8,8">
                 <i:Interaction.Behaviors>
                     <catel:UpdateBindingOnTextChanged UpdateDelay="500" />
                 </i:Interaction.Behaviors>
             </TextBox>
         </catel:StackGrid>
 
-        <ListBox x:Name="listBox" ItemsSource="{Binding FilteredClients}" SelectedItem="{Binding SelectedClient}">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <Grid>
-                        <i:Interaction.Behaviors>
-                            <catel:DoubleClickToCommand Command="{Binding ElementName=listBox, Path=DataContext.EditClient}" />
-                        </i:Interaction.Behaviors>
+        <DataGrid AutoGenerateColumns="False" ItemsSource="{Binding FilteredClients}" Margin="6,4,6,4"
+                  SelectedItem="{Binding SelectedClient}" SelectionMode="Single" CanUserAddRows="False">
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="MouseDoubleClick">
+                    <catel:EventToCommand Command="{Binding EditClient}" DisableAssociatedObjectOnCannotExecute="False" />
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
 
-                        <views:ClientView DataContext="{Binding}" />
-                    </Grid>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="{StaticResource IdColumnLabel}"
+                                    Binding="{Binding Id, Mode=OneWay}" />
+                <DataGridTextColumn Header="{StaticResource FirstName}"
+                                    Binding="{Binding FirstName, Mode=OneWay}" />
+                <DataGridTextColumn Header="{StaticResource LastName}"
+                                    Binding="{Binding LastName, Mode=OneWay}" />
+                <DataGridTextColumn Header="{StaticResource BirthDay}"
+                                    Binding="{Binding BirthDate, Mode=OneWay, StringFormat=d, ConverterCulture={x:Static glob:CultureInfo.CurrentCulture}}" />
+            </DataGrid.Columns>
+        </DataGrid>
 
         <StackPanel>
-            <Button Command="{Binding AddClient}" Content="Add..." />
-            <Button Command="{Binding EditClient}" Content="Edit..." />
-            <Button Command="{Binding RemoveClient}" Content="Remove" />
-            <Button Command="{Binding Refresh}" Content="Refresh" />
+            <Button Command="{Binding AddClient}" Content="{StaticResource Add}" />
+            <Button Command="{Binding EditClient}" Content="{StaticResource Edit}" />
+            <Button Command="{Binding RemoveClient}" Content="{StaticResource Remove}" />
+            <Button Command="{Binding Refresh}" Content="{StaticResource Refresh}" />
         </StackPanel>
     </catel:StackGrid>
 </catel:DataWindow>

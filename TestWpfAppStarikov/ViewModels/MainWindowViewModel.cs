@@ -8,18 +8,18 @@ namespace TestWpfAppStarikov.ViewModels
     using System.Collections.ObjectModel;
     using System.Linq;
     using System.Threading;
+    using System.Windows;
 
     using Catel;
     using Catel.Collections;
     using Catel.Data;
     using Catel.IoC;
+    using Catel.Logging;
     using Catel.MVVM;
     using Catel.Services;
 
     using TestWpfAppStarikov.Models;
     using TestWpfAppStarikov.Services;
-
-    using WPF.GettingStarted.Services;
 
     /// <summary>
     /// MainWindow view model.
@@ -30,6 +30,8 @@ namespace TestWpfAppStarikov.ViewModels
         private readonly IUIVisualizerService m_uiVisualizerService;
         private readonly IMessageService m_messageService;
         private readonly IPleaseWaitService m_pleaseWaitService;
+        private static readonly ILog Log = LogManager.GetCurrentClassLogger();
+        private string m_title = (string)Application.Current.FindResource("MainTitle");
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MainWindowViewModel"/> class.
@@ -57,7 +59,7 @@ namespace TestWpfAppStarikov.ViewModels
         /// Gets the title of the view model.
         /// </summary>
         /// <value>The title.</value>
-        public override string Title { get { return "Clients tool (Test Wpf app for RosEngineering interview. Starikov Ivan, 2016)"; } }
+        public override string Title { get { return m_title; } }
 
         /// <summary>
         /// Gets the clients.
@@ -129,9 +131,7 @@ namespace TestWpfAppStarikov.ViewModels
         private void OnRefreshExecute()
         {
             m_pleaseWaitService.Show();
-                        //Thread.Sleep(1000);
-                        ((ICollection<Client>)this.Clients).ReplaceRange(m_repositoryService.GetAllClients());
-                        //Thread.Sleep(2000);
+            ((ICollection<Client>)this.Clients).ReplaceRange(m_repositoryService.GetAllClients());
             UpdateSearchFilter();
             //((ICollection<Client>)this.Clients).ReplaceRange(m_repositoryService.GetAllClients());
         }
@@ -151,11 +151,42 @@ namespace TestWpfAppStarikov.ViewModels
             // Note that we use the type factory here because it will automatically take care of any dependencies
             // that the ClientWindowViewModel will add in the future
             var typeFactory = this.GetTypeFactory();
-            var familyWindowViewModel = typeFactory.CreateInstanceWithParametersAndAutoCompletion<ClientWindowViewModel>(client);
+            var familyWindowViewModel = typeFactory.CreateInstanceWithParametersAndAutoCompletion<ClientWindowViewModel>(client, "Add Item");
             if (await this.m_uiVisualizerService.ShowDialogAsync(familyWindowViewModel) ?? false)
             {
                 m_pleaseWaitService.Show();
-                m_repositoryService.InsertClient(client);
+                try
+                {
+                    m_repositoryService.InsertClient(client);
+                }
+                catch (System.Data.Entity.Infrastructure.DbUpdateConcurrencyException ex)
+                {
+                    Log.Error(ex);
+                    var errorMsg = (string)Application.Current.FindResource("ErrorAddItem");
+                    var errorCaption = (string)Application.Current.FindResource("ErrorCaption");
+                    await m_messageService.ShowAsync(errorMsg, icon: MessageImage.Error, caption: errorCaption);
+                    m_pleaseWaitService.Hide();
+                    return;
+                }
+                catch (System.Data.Entity.Infrastructure.DbUpdateException ex)
+                {
+                    Log.Error(ex);
+                    var errorMsg = (string)Application.Current.FindResource("ErrorAddItem");
+                    var errorCaption = (string)Application.Current.FindResource("ErrorCaption");
+                    await m_messageService.ShowAsync(errorMsg, icon: MessageImage.Error, caption: errorCaption);
+                    m_pleaseWaitService.Hide();
+                    return;
+                }
+                catch (System.Data.Entity.Validation.DbEntityValidationException ex)
+                {
+                    Log.Error(ex);
+                    var errorMsg = (string)Application.Current.FindResource("ErrorAddItem");
+                    var errorCaption = (string)Application.Current.FindResource("ErrorCaption");
+                    await m_messageService.ShowAsync(errorMsg, icon: MessageImage.Error, caption: errorCaption);
+                    m_pleaseWaitService.Hide();
+                    return;
+                }
+                Log.Info("Client has been added: " + client.ToString());
                 this.Clients.Add(client);
                 UpdateSearchFilter();
             }
@@ -183,10 +214,41 @@ namespace TestWpfAppStarikov.ViewModels
             // Note that we use the type factory here because it will automatically take care of any dependencies
             // that the PersonViewModel will add in the future
             var typeFactory = this.GetTypeFactory();
-            var clientWindowViewModel = typeFactory.CreateInstanceWithParametersAndAutoCompletion<ClientWindowViewModel>(this.SelectedClient);
+            var clientWindowViewModel = typeFactory.CreateInstanceWithParametersAndAutoCompletion<ClientWindowViewModel>(this.SelectedClient, "Edit Item");
             await this.m_uiVisualizerService.ShowDialogAsync(clientWindowViewModel);
             m_pleaseWaitService.Show();
-            m_repositoryService.UpdateClient(this.SelectedClient);
+            try
+            {
+                m_repositoryService.UpdateClient(this.SelectedClient);
+            }
+            catch (System.Data.Entity.Infrastructure.DbUpdateConcurrencyException ex)
+            {
+                Log.Error(ex);
+                var errorMsg = (string)Application.Current.FindResource("ErrorUpdateItem");
+                var errorCaption = (string)Application.Current.FindResource("ErrorCaption");
+                await m_messageService.ShowAsync(errorMsg, icon: MessageImage.Error, caption: errorCaption);
+                m_pleaseWaitService.Hide();
+                return;
+            }
+            catch (System.Data.Entity.Infrastructure.DbUpdateException ex)
+            {
+                Log.Error(ex);
+                var errorMsg = (string)Application.Current.FindResource("ErrorUpdateItem");
+                var errorCaption = (string)Application.Current.FindResource("ErrorCaption");
+                await m_messageService.ShowAsync(errorMsg, icon: MessageImage.Error, caption: errorCaption);
+                m_pleaseWaitService.Hide();
+                return;
+            }
+            catch (System.Data.Entity.Validation.DbEntityValidationException ex)
+            {
+                Log.Error(ex);
+                var errorMsg = (string)Application.Current.FindResource("ErrorUpdateItem");
+                var errorCaption = (string)Application.Current.FindResource("ErrorCaption");
+                await m_messageService.ShowAsync(errorMsg, icon: MessageImage.Error, caption: errorCaption);
+                m_pleaseWaitService.Hide();
+                return;
+            }
+            Log.Info("Client has been edited: " + this.SelectedClient.ToString());
             UpdateSearchFilter();
         }
 
@@ -209,11 +271,44 @@ namespace TestWpfAppStarikov.ViewModels
         /// </summary>
         private async Task OnRemoveClientExecute()
         {
-            if (await this.m_messageService.ShowAsync(string.Format("Are you sure you want to delete the Client '{0}'?", this.SelectedClient),
-                "Are you sure?", MessageButton.YesNo, MessageImage.Question) == MessageResult.Yes)
+            var deleteMsg = (string)Application.Current.FindResource("DeleteItemMessage");
+            var deleteCaption = (string)Application.Current.FindResource("DeleteItemCaption");
+            if (await this.m_messageService.ShowAsync(string.Format(deleteMsg, this.SelectedClient),
+                deleteCaption, MessageButton.YesNo, MessageImage.Question) == MessageResult.Yes)
             {
                 m_pleaseWaitService.Show();
-                m_repositoryService.DeleteClient(this.SelectedClient);
+                try
+                {
+                    m_repositoryService.DeleteClient(this.SelectedClient);
+                }
+                catch (System.Data.Entity.Infrastructure.DbUpdateConcurrencyException ex)
+                {
+                    Log.Error(ex);
+                    var errorMsg = (string)Application.Current.FindResource("ErrorDeleteItem");
+                    var errorCaption = (string)Application.Current.FindResource("ErrorCaption");
+                    await m_messageService.ShowAsync(errorMsg, icon: MessageImage.Error, caption: errorCaption);
+                    m_pleaseWaitService.Hide();
+                    return;
+                }
+                catch (System.Data.Entity.Infrastructure.DbUpdateException ex)
+                {
+                    Log.Error(ex);
+                    var errorMsg = (string)Application.Current.FindResource("ErrorDeleteItem");
+                    var errorCaption = (string)Application.Current.FindResource("ErrorCaption");
+                    await m_messageService.ShowAsync(errorMsg, icon: MessageImage.Error, caption: errorCaption);
+                    m_pleaseWaitService.Hide();
+                    return;
+                }
+                catch (System.Data.Entity.Validation.DbEntityValidationException ex)
+                {
+                    Log.Error(ex);
+                    var errorMsg = (string)Application.Current.FindResource("ErrorDeleteItem");
+                    var errorCaption = (string)Application.Current.FindResource("ErrorCaption");
+                    await m_messageService.ShowAsync(errorMsg, icon: MessageImage.Error, caption: errorCaption);
+                    m_pleaseWaitService.Hide();
+                    return;
+                }
+                Log.Info("Client has been deleted: " + this.SelectedClient.ToString());
                 this.Clients.Remove(this.SelectedClient);
                 this.SelectedClient = null;
                 UpdateSearchFilter();
@@ -232,7 +327,6 @@ namespace TestWpfAppStarikov.ViewModels
 
             if (string.IsNullOrWhiteSpace(SearchFilter))
             {
-                //FilteredClients.ReplaceRange(this.Clients);
                 m_pleaseWaitService.Show(
                     () =>
                         {
@@ -242,7 +336,7 @@ namespace TestWpfAppStarikov.ViewModels
             else
             {
                 var lowerSearchFilter = SearchFilter.ToLower();
-                m_pleaseWaitService.Show(
+                this.m_pleaseWaitService.Show(
                     () =>
                         {
                             ((ICollection<Client>)FilteredClients).ReplaceRange(
@@ -268,10 +362,10 @@ namespace TestWpfAppStarikov.ViewModels
             UpdateSearchFilter();
         }
 
-        protected override async Task CloseAsync()
-        {
-            //this.m_repositoryService.(this.Clients);
-        }
+        //protected override async Task CloseAsync()
+        //{
+        //    //this.m_repositoryService.(this.Clients);
+        //}
 
         #endregion
     }

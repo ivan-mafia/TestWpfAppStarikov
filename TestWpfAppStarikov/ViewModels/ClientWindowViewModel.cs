@@ -17,7 +17,9 @@ namespace TestWpfAppStarikov.ViewModels
         private readonly IUIVisualizerService _uiVisualizerService;
         private readonly IMessageService _messageService;
 
-        public ClientWindowViewModel(Client client, IUIVisualizerService uiVisualizerService, IMessageService messageService)
+        private string m_titleString = String.Empty;
+
+        public ClientWindowViewModel(Client client, string title, IUIVisualizerService uiVisualizerService, IMessageService messageService)
         {
             Argument.IsNotNull(() => client);
             Argument.IsNotNull(() => uiVisualizerService);
@@ -26,7 +28,10 @@ namespace TestWpfAppStarikov.ViewModels
             this.Client = client;
             _uiVisualizerService = uiVisualizerService;
             _messageService = messageService;
+            m_titleString = title;
         }
+
+        public override string Title { get { return m_titleString; } }
 
         /// <summary>
         /// Gets the Client.

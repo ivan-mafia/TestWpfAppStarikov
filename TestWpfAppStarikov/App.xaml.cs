@@ -3,22 +3,22 @@
     using System.Globalization;
     using System.Windows;
     using Catel.IoC;
+    using Catel.Logging;
     using Catel.Services;
     using Catel.Windows;
 
+    using TestWpfAppStarikov.DbContext;
     using TestWpfAppStarikov.Services;
 
     using TestWpfAppStarikov.ViewModels;
     using TestWpfAppStarikov.Views;
-
-    using WPF.GettingStarted.DbContext;
-    using WPF.GettingStarted.Services;
 
     /// <summary>
     /// Interaction logic for App.xaml
     /// </summary>
     public partial class App : Application
     {
+        private static readonly ILog Log = LogManager.GetCurrentClassLogger();
         /// <summary>
         /// Raises the <see cref="E:System.Windows.Application.Startup"/> event.
         /// </summary>
@@ -26,8 +26,10 @@
         protected override void OnStartup(StartupEventArgs e)
         {
 #if DEBUG
-            Catel.Logging.LogManager.AddDebugListener();
+        Catel.Logging.LogManager.AddDebugListener();
 #endif
+
+            Log.Info("Starting application...");
             //var languageService = ServiceLocator.Default.ResolveType<ILanguageService>();
 
             //// Note: it's best to use .CurrentUICulture in actual apps since it will use the preferred language
@@ -36,11 +38,10 @@
             //languageService.PreferredCulture = CultureInfo.CurrentCulture;
             //languageService.FallbackCulture = new CultureInfo("ru-RU");
 
-            StyleHelper.CreateStyleForwardersForDefaultStyles();
+            //StyleHelper.CreateStyleForwardersForDefaultStyles();
 
             var serviceLocator = ServiceLocator.Default;
             serviceLocator.RegisterType<IRepositoryService, RepositoryService>();
-            serviceLocator.RegisterType<IFamilyService, FamilyService>();
 
             var dependencyResolver = this.GetDependencyResolver();
             var repositoryService = dependencyResolver.Resolve<IRepositoryService>();
@@ -49,8 +50,11 @@
 
             if (repositoryService.IsClientsEmpty())
             {
+                Log.Info("Clients table empty. Insert test data.");
                 repositoryService.InsertClient(TestData.Clients());
             }
+
+            Log.Info("Calling base.OnStartup");
 
             base.OnStartup(e);
         }

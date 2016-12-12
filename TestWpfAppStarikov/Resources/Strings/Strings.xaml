@@ -1,0 +1,29 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+
+    <!--Labels-->
+    <system:String x:Key="MainTitle">Клиенты (Test Wpf app for RosEngineering interview. Starikov Ivan, 2016)</system:String>
+    <system:String x:Key="LastNameFilter">Фамилия:</system:String>
+    <system:String x:Key="IdColumnLabel">Id</system:String>
+    <system:String x:Key="FirstName">Имя</system:String>
+    <system:String x:Key="LastName">Фамилия</system:String>
+    <system:String x:Key="BirthDay">Дата рождения</system:String>
+    
+    <!--Buttons-->
+    <system:String x:Key="Add">Добавить...</system:String>
+    <system:String x:Key="Edit">Изменить...</system:String>
+    <system:String x:Key="Remove">Удалить</system:String>
+    <system:String x:Key="Refresh">Обновить</system:String>
+
+    <!--Messages-->
+    <system:String x:Key="DeleteItemMessage">Вы уверены, что хотите удалить клиента '{0}'?</system:String>
+    <system:String x:Key="DeleteItemCaption">Подтверждение</system:String>
+    <system:String x:Key="ErrorCaption">Ошибка</system:String>
+    <system:String x:Key="ErrorAddItem">Ошибка при добавлении клиента </system:String>
+    <system:String x:Key="ErrorDeleteItem">Ошибка при удалении клиента</system:String>
+    <system:String x:Key="ErrorUpdateItem">Ошибка при изменении клиента</system:String>
+    <system:String x:Key="FirstNameIsRequired">Требуется ввести имя</system:String>
+    <system:String x:Key="LastNameIsRequired">Требуется ввести фамилию</system:String>
+
+</ResourceDictionary>
