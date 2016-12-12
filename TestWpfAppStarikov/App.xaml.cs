@@ -11,6 +11,9 @@
     using TestWpfAppStarikov.ViewModels;
     using TestWpfAppStarikov.Views;
 
+    using WPF.GettingStarted.DbContext;
+    using WPF.GettingStarted.Services;
+
     /// <summary>
     /// Interaction logic for App.xaml
     /// </summary>
@@ -36,7 +39,18 @@
             StyleHelper.CreateStyleForwardersForDefaultStyles();
 
             var serviceLocator = ServiceLocator.Default;
+            serviceLocator.RegisterType<IRepositoryService, RepositoryService>();
             serviceLocator.RegisterType<IFamilyService, FamilyService>();
+
+            var dependencyResolver = this.GetDependencyResolver();
+            var repositoryService = dependencyResolver.Resolve<IRepositoryService>();
+            var messageService = dependencyResolver.Resolve<IMessageService>();
+            var navigationService = dependencyResolver.Resolve<IUIVisualizerService>();
+
+            if (repositoryService.IsClientsEmpty())
+            {
+                repositoryService.InsertClient(TestData.Clients());
+            }
 
             base.OnStartup(e);
         }

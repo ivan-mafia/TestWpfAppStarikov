@@ -3,9 +3,12 @@
 namespace TestWpfAppStarikov.ViewModels
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
+    using System.Threading;
+
     using Catel;
     using Catel.Collections;
     using Catel.Data;
@@ -16,29 +19,35 @@ namespace TestWpfAppStarikov.ViewModels
     using TestWpfAppStarikov.Models;
     using TestWpfAppStarikov.Services;
 
+    using WPF.GettingStarted.Services;
+
     /// <summary>
     /// MainWindow view model.
     /// </summary>
     public class MainWindowViewModel : ViewModelBase
     {
-        private readonly IFamilyService _familyService;
-        private readonly IUIVisualizerService _uiVisualizerService;
-        private readonly IMessageService _messageService;
+        private readonly IRepositoryService m_repositoryService;
+        private readonly IUIVisualizerService m_uiVisualizerService;
+        private readonly IMessageService m_messageService;
+        private readonly IPleaseWaitService m_pleaseWaitService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MainWindowViewModel"/> class.
         /// </summary>
-        public MainWindowViewModel(IFamilyService familyService, IUIVisualizerService uiVisualizerService, IMessageService messageService)
+        public MainWindowViewModel(IRepositoryService repositoryService, IUIVisualizerService uiVisualizerService, IMessageService messageService, IPleaseWaitService pleaseWaitService)
         {
-            Argument.IsNotNull(() => familyService);
+            Argument.IsNotNull(() => repositoryService);
             Argument.IsNotNull(() => uiVisualizerService);
             Argument.IsNotNull(() => messageService);
+            Argument.IsNotNull(() => pleaseWaitService);
 
-            _familyService = familyService;
-            _uiVisualizerService = uiVisualizerService;
-            _messageService = messageService;
+            this.m_repositoryService = repositoryService;
+            this.m_uiVisualizerService = uiVisualizerService;
+            this.m_messageService = messageService;
+            this.m_pleaseWaitService = pleaseWaitService;
 
             this.AddClient = new TaskCommand(this.OnAddClientExecuteAsync);
+            this.Refresh = new Command(this.OnRefreshExecute);
             this.EditClient = new TaskCommand(this.OnEditClientExecute, this.OnEditClientCanExecute);
             this.RemoveClient = new TaskCommand(this.OnRemoveClientExecute, this.OnRemoveClientCanExecute);
         }
@@ -48,7 +57,7 @@ namespace TestWpfAppStarikov.ViewModels
         /// Gets the title of the view model.
         /// </summary>
         /// <value>The title.</value>
-        public override string Title { get { return "WPF Getting Started example"; } }
+        public override string Title { get { return "Clients tool (Test Wpf app for RosEngineering interview. Starikov Ivan, 2016)"; } }
 
         /// <summary>
         /// Gets the clients.
@@ -110,6 +119,24 @@ namespace TestWpfAppStarikov.ViewModels
 
         #region Commands
         /// <summary>
+            /// Gets the Refresh command.
+            /// </summary>
+        public Command Refresh { get; private set; }
+
+        /// <summary>
+        /// Method to invoke when the Refresh command is executed.
+        /// </summary>
+        private void OnRefreshExecute()
+        {
+            m_pleaseWaitService.Show();
+                        //Thread.Sleep(1000);
+                        ((ICollection<Client>)this.Clients).ReplaceRange(m_repositoryService.GetAllClients());
+                        //Thread.Sleep(2000);
+            UpdateSearchFilter();
+            //((ICollection<Client>)this.Clients).ReplaceRange(m_repositoryService.GetAllClients());
+        }
+
+        /// <summary>
         /// Gets the AddClient command.
         /// </summary>
         public TaskCommand AddClient { get; private set; }
@@ -125,10 +152,11 @@ namespace TestWpfAppStarikov.ViewModels
             // that the ClientWindowViewModel will add in the future
             var typeFactory = this.GetTypeFactory();
             var familyWindowViewModel = typeFactory.CreateInstanceWithParametersAndAutoCompletion<ClientWindowViewModel>(client);
-            if (await _uiVisualizerService.ShowDialogAsync(familyWindowViewModel) ?? false)
+            if (await this.m_uiVisualizerService.ShowDialogAsync(familyWindowViewModel) ?? false)
             {
+                m_pleaseWaitService.Show();
+                m_repositoryService.InsertClient(client);
                 this.Clients.Add(client);
-
                 UpdateSearchFilter();
             }
         }
@@ -156,7 +184,10 @@ namespace TestWpfAppStarikov.ViewModels
             // that the PersonViewModel will add in the future
             var typeFactory = this.GetTypeFactory();
             var clientWindowViewModel = typeFactory.CreateInstanceWithParametersAndAutoCompletion<ClientWindowViewModel>(this.SelectedClient);
-            await _uiVisualizerService.ShowDialogAsync(clientWindowViewModel);
+            await this.m_uiVisualizerService.ShowDialogAsync(clientWindowViewModel);
+            m_pleaseWaitService.Show();
+            m_repositoryService.UpdateClient(this.SelectedClient);
+            UpdateSearchFilter();
         }
 
         /// <summary>
@@ -178,9 +209,11 @@ namespace TestWpfAppStarikov.ViewModels
         /// </summary>
         private async Task OnRemoveClientExecute()
         {
-            if (await _messageService.ShowAsync(string.Format("Are you sure you want to delete the Client '{0}'?", this.SelectedClient),
+            if (await this.m_messageService.ShowAsync(string.Format("Are you sure you want to delete the Client '{0}'?", this.SelectedClient),
                 "Are you sure?", MessageButton.YesNo, MessageImage.Question) == MessageResult.Yes)
             {
+                m_pleaseWaitService.Show();
+                m_repositoryService.DeleteClient(this.SelectedClient);
                 this.Clients.Remove(this.SelectedClient);
                 this.SelectedClient = null;
                 UpdateSearchFilter();
@@ -200,15 +233,25 @@ namespace TestWpfAppStarikov.ViewModels
             if (string.IsNullOrWhiteSpace(SearchFilter))
             {
                 //FilteredClients.ReplaceRange(this.Clients);
-                ((ICollection<Client>)FilteredClients).ReplaceRange(this.Clients);
+                m_pleaseWaitService.Show(
+                    () =>
+                        {
+                            ((ICollection<Client>)FilteredClients).ReplaceRange(this.Clients);
+                        });
             }
             else
             {
                 var lowerSearchFilter = SearchFilter.ToLower();
-
-                ((ICollection<Client>)FilteredClients).ReplaceRange(from client in this.Clients
-                                                where !string.IsNullOrWhiteSpace(client.LastName) && client.LastName.ToLower().Contains(lowerSearchFilter)
-                                                select client);
+                m_pleaseWaitService.Show(
+                    () =>
+                        {
+                            ((ICollection<Client>)FilteredClients).ReplaceRange(
+                                from client in this.Clients
+                                where
+                                    !string.IsNullOrWhiteSpace(client.LastName)
+                                    && client.LastName.ToLower().Contains(lowerSearchFilter)
+                                select client);
+                        });
             }
         }
         #endregion
@@ -217,19 +260,17 @@ namespace TestWpfAppStarikov.ViewModels
 
         protected override async Task InitializeAsync()
         {
-            //var families = _familyService.LoadFamilies();
-
-            this.Clients = new ObservableCollection<Client>
-                           {
-                               new Client {FirstName = "sdfsdf", LastName = "asdfasd", BirthDate = DateTime.Now, Id = 1}
-                           };
+            //var families = _repositoryService.LoadFamilies();
+            m_pleaseWaitService.Show();
+            this.Clients = new ObservableCollection<Client>();
+            ((ICollection<Client>)this.Clients).ReplaceRange(m_repositoryService.GetAllClients());
 
             UpdateSearchFilter();
         }
 
         protected override async Task CloseAsync()
         {
-            _familyService.SaveFamilies(this.Clients);
+            //this.m_repositoryService.(this.Clients);
         }
 
         #endregion
