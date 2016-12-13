@@ -1,6 +1,6 @@
 ﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Client.cs" company="IS">
-// COPYRIGHT (c) Starikov Ivan,  2016.
+// <copyright file="Client.cs" company="Ivan">
+//   Starikov Ivan, 2016.
 // </copyright>
 // <summary>
 //   Defines the Client type.
@@ -15,107 +15,78 @@ namespace TestWpfAppStarikov.Models
 
     using Catel.Data;
 
+    /// <summary>
+    /// The client.
+    /// </summary>
     public class Client : ModelBase
     {
+        /// <summary>
+        /// Gets or sets the id.
+        /// </summary>
         public int Id { get; set; }
 
+        /// <summary>
+        /// Gets or sets the birth date.
+        /// </summary>
         public DateTime BirthDate { get; set; }
 
+        /// <summary>
+        /// Gets or sets the first name.
+        /// </summary>
         public string FirstName { get; set; }
 
+        /// <summary>
+        /// Gets or sets the last name.
+        /// </summary>
         public string LastName { get; set; }
 
-        ///// <summary>
-        ///// Gets or sets the property value.
-        ///// </summary>
-        //public int Id
-        //{
-        //    get { return GetValue<int>(IdProperty); }
-        //    set { SetValue(IdProperty, value); }
-        //}
+        /// <summary>
+        /// The to string override method.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="string"/>.
+        /// </returns>
+        public override string ToString()
+        {
+            string fullName = string.Empty;
 
-        ///// <summary>
-        ///// Register the Id property so it is known in the class.
-        ///// </summary>
-        //public static readonly PropertyData IdProperty = RegisterProperty("Id", typeof(int), null);
+            if (!string.IsNullOrEmpty(this.FirstName))
+            {
+                fullName += this.FirstName;
+            }
 
-        ///// <summary>
-        //    /// Gets or sets the property value.
-        //    /// </summary>
-        //public DateTime BirthDate
-        //{
-        //    get { return GetValue<DateTime>(BirthDateProperty); }
-        //    set { SetValue(BirthDateProperty, value); }
-        //}
+            if (!string.IsNullOrEmpty(this.FirstName) && !string.IsNullOrWhiteSpace(this.LastName))
+            {
+                fullName += " ";
+            }
 
-        ///// <summary>
-        ///// Register the BirthDate property so it is known in the class.
-        ///// </summary>
-        //public static readonly PropertyData BirthDateProperty = RegisterProperty("BirthDate", typeof(DateTime), null);
+            if (!string.IsNullOrWhiteSpace(this.LastName))
+            {
+                fullName += this.LastName;
+            }
 
-        ///// <summary>
-        ///// Gets or sets the first name.
-        ///// </summary>
-        //public string FirstName
-        //{
-        //    get { return GetValue<string>(FirstNameProperty); }
-        //    set { SetValue(FirstNameProperty, value); }
-        //}
+            return fullName;
+        }
 
-        ///// <summary>
-        ///// Register the FirstName property so it is known in the class.
-        ///// </summary>
-        //public static readonly PropertyData FirstNameProperty = RegisterProperty("FirstName", typeof(string), null);
-
-        ///// <summary>
-        ///// Gets or sets the last name.
-        ///// </summary>
-        //public string LastName
-        //{
-        //    get { return GetValue<string>(LastNameProperty); }
-        //    set { SetValue(LastNameProperty, value); }
-        //}
-
-        ///// <summary>
-        ///// Register the LastName property so it is known in the class.
-        ///// </summary>
-        //public static readonly PropertyData LastNameProperty = RegisterProperty("LastName", typeof(string), null);
-
+        /// <summary>
+        /// The validate fields.
+        /// </summary>
+        /// <param name="validationResults">
+        /// The validation results.
+        /// </param>
         protected override void ValidateFields(List<IFieldValidationResult> validationResults)
         {
-            if (string.IsNullOrWhiteSpace(FirstName))
+            if (string.IsNullOrWhiteSpace(this.FirstName))
             {
                 var validMsg = (string)Application.Current.FindResource("FirstNameIsRequired");
                 validationResults.Add(FieldValidationResult.CreateError("FirstName", validMsg));
             }
 
-            if (string.IsNullOrWhiteSpace(LastName))
+            if (string.IsNullOrWhiteSpace(this.LastName))
             {
                 var validMsg = (string)Application.Current.FindResource("LastNameIsRequired");
                 validationResults.Add(FieldValidationResult.CreateError("LastName", validMsg));
             }
-        }
-
-        public override string ToString()
-        {
-            string fullName = string.Empty;
-
-            if (!string.IsNullOrEmpty(FirstName))
-            {
-                fullName += FirstName;
-            }
-
-            if (!string.IsNullOrEmpty(FirstName) && !string.IsNullOrWhiteSpace(LastName))
-            {
-                fullName += " ";
-            }
-
-            if (!string.IsNullOrWhiteSpace(LastName))
-            {
-                fullName += LastName;
-            }
-
-            return fullName;
         }
     }
 }

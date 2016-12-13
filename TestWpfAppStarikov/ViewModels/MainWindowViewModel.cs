@@ -1,41 +1,84 @@
-﻿using System.Threading.Tasks;
-
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="MainWindowViewModel.cs" company="Ivan">
+//   Starikov Ivan, 2016
+// </copyright>
+// <summary>
+//   MainWindow view model.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 namespace TestWpfAppStarikov.ViewModels
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
+    using System.Data.Entity.Infrastructure;
+    using System.Data.Entity.Validation;
+    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
-    using System.Threading;
+    using System.Threading.Tasks;
     using System.Windows;
 
     using Catel;
     using Catel.Collections;
-    using Catel.Data;
     using Catel.IoC;
     using Catel.Logging;
     using Catel.MVVM;
     using Catel.Services;
 
     using TestWpfAppStarikov.Models;
-    using TestWpfAppStarikov.Services;
+    using TestWpfAppStarikov.Services.Interfaces;
 
     /// <summary>
     /// MainWindow view model.
     /// </summary>
     public class MainWindowViewModel : ViewModelBase
     {
-        private readonly IRepositoryService m_repositoryService;
-        private readonly IUIVisualizerService m_uiVisualizerService;
-        private readonly IMessageService m_messageService;
-        private readonly IPleaseWaitService m_pleaseWaitService;
+        /// <summary>
+        /// The logger.
+        /// </summary>
+        [SuppressMessage("StyleCopPlus.StyleCopPlusRules", "SP0100:AdvancedNamingRules", Justification = "Reviewed. Suppression is OK here.")]
         private static readonly ILog Log = LogManager.GetCurrentClassLogger();
-        private string m_title = (string)Application.Current.FindResource("MainTitle");
+
+        /// <summary>
+        /// The repository service.
+        /// </summary>
+        private readonly IRepositoryService m_repositoryService;
+
+        /// <summary>
+        /// The <c>ui</c> visualizer service.
+        /// </summary>
+        private readonly IUIVisualizerService m_uiVisualizerService;
+
+        /// <summary>
+        /// The message service.
+        /// </summary>
+        private readonly IMessageService m_messageService;
+
+        /// <summary>
+        /// The please wait service.
+        /// </summary>
+        private readonly IPleaseWaitService m_pleaseWaitService;
+
+        /// <summary>
+        /// The m_title.
+        /// </summary>
+        private readonly string m_title = (string)Application.Current.FindResource("MainTitle");
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MainWindowViewModel"/> class.
         /// </summary>
+        /// <param name="repositoryService">
+        /// The repository service.
+        /// </param>
+        /// <param name="uiVisualizerService">
+        /// The <c>ui</c> visualizer service.
+        /// </param>
+        /// <param name="messageService">
+        /// The message service.
+        /// </param>
+        /// <param name="pleaseWaitService">
+        /// The please wait service.
+        /// </param>
         public MainWindowViewModel(IRepositoryService repositoryService, IUIVisualizerService uiVisualizerService, IMessageService messageService, IPleaseWaitService pleaseWaitService)
         {
             Argument.IsNotNull(() => repositoryService);
@@ -55,95 +98,87 @@ namespace TestWpfAppStarikov.ViewModels
         }
 
         #region Properties
+
         /// <summary>
         /// Gets the title of the view model.
         /// </summary>
         /// <value>The title.</value>
-        public override string Title { get { return m_title; } }
+        public override string Title => this.m_title;
 
+        /// <summary>
+        /// Gets or sets collection of clients.
+        /// </summary>
         public ObservableCollection<Client> Clients { get; set; }
 
+        /// <summary>
+        /// Gets or sets collection of filtered clients.
+        /// </summary>
         public ObservableCollection<Client> FilteredClients { get; set; }
 
+        /// <summary>
+        /// Gets or sets search filter.
+        /// </summary>
         public string SearchFilter { get; set; }
 
+        /// <summary>
+        /// Gets or sets selected client. Used for selected item in view.
+        /// </summary>
         public Client SelectedClient { get; set; }
-
-
-        /*/// <summary>
-        /// Gets the clients.
-        /// </summary>
-        public ObservableCollection<Client> Clients
-        {
-            get { return GetValue<ObservableCollection<Client>>(ClientProperty); }
-            private set { SetValue(ClientProperty, value); }
-        }
-
-        /// <summary>
-        /// Register the Clients property so it is known in the class.
-        /// </summary>
-        public static readonly PropertyData ClientProperty = RegisterProperty("Clients", typeof(ObservableCollection<Client>), null);
-
-        /// <summary>
-        /// Gets the filtered clients.
-        /// </summary>
-        public ObservableCollection<Client> FilteredClients
-        {
-            get { return GetValue<ObservableCollection<Client>>(FilteredClientsProperty); }
-            private set { SetValue(FilteredClientsProperty, value); }
-        }
-
-        /// <summary>
-        /// Register the FilteredClients property so it is known in the class.
-        /// </summary>
-        public static readonly PropertyData FilteredClientsProperty = RegisterProperty("FilteredClients", typeof(ObservableCollection<Client>));
-
-        /// <summary>
-        /// Gets or sets the search filter.
-        /// </summary>
-        public string SearchFilter
-        {
-            get { return GetValue<string>(SearchFilterProperty); }
-            set { SetValue(SearchFilterProperty, value); }
-        }
-
-        /// <summary>
-        /// Register the SearchFilter property so it is known in the class.
-        /// </summary>
-        public static readonly PropertyData SearchFilterProperty = RegisterProperty("SearchFilter", typeof(string), null, 
-            (sender, e) => ((MainWindowViewModel)sender).UpdateSearchFilter());
-
-        /// <summary>
-        /// Gets or sets the selected Client.
-        /// </summary>
-        public Client SelectedClient
-        {
-            get { return GetValue<Client>(SelectedClientProperty); }
-            set { SetValue(SelectedClientProperty, value); }
-        }
-
-        /// <summary>
-        /// Register the SelectedClient property so it is known in the class.
-        /// </summary>
-        public static readonly PropertyData SelectedClientProperty = RegisterProperty("SelectedClient", typeof(Client),null);
-        */
         #endregion
 
         #region Commands
+
         /// <summary>
-            /// Gets the Refresh command.
-            /// </summary>
+        /// Gets the Refresh command.
+        /// </summary>
         public Command Refresh { get; private set; }
 
         /// <summary>
         /// Method to invoke when the Refresh command is executed.
         /// </summary>
-        private void OnRefreshExecute()
+        private async void OnRefreshExecute()
         {
-            m_pleaseWaitService.Show();
-            ((ICollection<Client>)this.Clients).ReplaceRange(m_repositoryService.GetAllClients());
-            UpdateSearchFilter();
-            //((ICollection<Client>)this.Clients).ReplaceRange(m_repositoryService.GetAllClients());
+            this.m_pleaseWaitService.Show();
+            try
+            {
+                ((ICollection<Client>)this.Clients).ReplaceRange(this.m_repositoryService.GetAllClients());
+                this.UpdateSearchFilter();
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                Log.Error(ex);
+                var errorMsg = (string)Application.Current.FindResource("ErrorAddItem");
+                var errorCaption = (string)Application.Current.FindResource("ErrorCaption");
+                await this.m_messageService.ShowAsync(errorMsg, icon: MessageImage.Error, caption: errorCaption);
+                this.m_pleaseWaitService.Hide();
+                return;
+            }
+            catch (DbUpdateException ex)
+            {
+                Log.Error(ex);
+                var errorMsg = (string)Application.Current.FindResource("ErrorAddItem");
+                var errorCaption = (string)Application.Current.FindResource("ErrorCaption");
+                await this.m_messageService.ShowAsync(errorMsg, icon: MessageImage.Error, caption: errorCaption);
+                this.m_pleaseWaitService.Hide();
+                return;
+            }
+            catch (DbEntityValidationException ex)
+            {
+                Log.Error(ex);
+                var errorMsg = (string)Application.Current.FindResource("ErrorAddItem");
+                var errorCaption = (string)Application.Current.FindResource("ErrorCaption");
+                await this.m_messageService.ShowAsync(errorMsg, icon: MessageImage.Error, caption: errorCaption);
+                this.m_pleaseWaitService.Hide();
+                return;
+            }
+            catch (System.Data.SqlClient.SqlException ex)
+            {
+                Log.Error(ex, "sql error");
+                var errorMsg = (string)Application.Current.FindResource("SqlErrorMsg");
+                var errorCaption = (string)Application.Current.FindResource("ErrorCaption");
+                await this.m_messageService.ShowAsync(errorMsg, icon: MessageImage.Error, caption: errorCaption);
+                this.m_pleaseWaitService.Hide();
+            }
         }
 
         /// <summary>
@@ -154,51 +189,65 @@ namespace TestWpfAppStarikov.ViewModels
         /// <summary>
         /// Method to invoke when the AddClient command is executed.
         /// </summary>
+        /// <returns>
+        /// The <see cref="Task"/>.
+        /// </returns>
         private async Task OnAddClientExecuteAsync()
         {
-            var client = new Client();
-            client.BirthDate = DateTime.Now;
-            // Note that we use the type factory here because it will automatically take care of any dependencies
+            var client = new Client { BirthDate = DateTime.Now };
+            var addTitle = (string)Application.Current.FindResource("Add") ?? "Add";
+            // Note that I use the type factory here because it will automatically take care of any dependencies
             // that the ClientWindowViewModel will add in the future
             var typeFactory = this.GetTypeFactory();
-            var familyWindowViewModel = typeFactory.CreateInstanceWithParametersAndAutoCompletion<ClientWindowViewModel>(client, "Add Item");
+            var familyWindowViewModel =
+                typeFactory.CreateInstanceWithParametersAndAutoCompletion<ClientWindowViewModel>(client, addTitle);
             if (await this.m_uiVisualizerService.ShowDialogAsync(familyWindowViewModel) ?? false)
             {
-                m_pleaseWaitService.Show();
+                this.m_pleaseWaitService.Show();
                 try
                 {
-                    m_repositoryService.InsertClient(client);
+                    this.m_repositoryService.InsertClient(client);
                 }
-                catch (System.Data.Entity.Infrastructure.DbUpdateConcurrencyException ex)
+                catch (DbUpdateConcurrencyException ex)
                 {
                     Log.Error(ex);
                     var errorMsg = (string)Application.Current.FindResource("ErrorAddItem");
                     var errorCaption = (string)Application.Current.FindResource("ErrorCaption");
-                    await m_messageService.ShowAsync(errorMsg, icon: MessageImage.Error, caption: errorCaption);
-                    m_pleaseWaitService.Hide();
+                    await this.m_messageService.ShowAsync(errorMsg, icon: MessageImage.Error, caption: errorCaption);
+                    this.m_pleaseWaitService.Hide();
                     return;
                 }
-                catch (System.Data.Entity.Infrastructure.DbUpdateException ex)
+                catch (DbUpdateException ex)
                 {
                     Log.Error(ex);
                     var errorMsg = (string)Application.Current.FindResource("ErrorAddItem");
                     var errorCaption = (string)Application.Current.FindResource("ErrorCaption");
-                    await m_messageService.ShowAsync(errorMsg, icon: MessageImage.Error, caption: errorCaption);
-                    m_pleaseWaitService.Hide();
+                    await this.m_messageService.ShowAsync(errorMsg, icon: MessageImage.Error, caption: errorCaption);
+                    this.m_pleaseWaitService.Hide();
                     return;
                 }
-                catch (System.Data.Entity.Validation.DbEntityValidationException ex)
+                catch (DbEntityValidationException ex)
                 {
                     Log.Error(ex);
                     var errorMsg = (string)Application.Current.FindResource("ErrorAddItem");
                     var errorCaption = (string)Application.Current.FindResource("ErrorCaption");
-                    await m_messageService.ShowAsync(errorMsg, icon: MessageImage.Error, caption: errorCaption);
-                    m_pleaseWaitService.Hide();
+                    await this.m_messageService.ShowAsync(errorMsg, icon: MessageImage.Error, caption: errorCaption);
+                    this.m_pleaseWaitService.Hide();
                     return;
                 }
-                Log.Info("Client has been added: " + client.ToString());
+                catch (System.Data.SqlClient.SqlException ex)
+                {
+                    Log.Error(ex);
+                    var errorMsg = (string)Application.Current.FindResource("SqlErrorMsg");
+                    var errorCaption = (string)Application.Current.FindResource("ErrorCaption");
+                    await this.m_messageService.ShowAsync(errorMsg, icon: MessageImage.Error, caption: errorCaption);
+                    this.m_pleaseWaitService.Hide();
+                    return;
+                }
+
+                Log.Info($"Client has been added: {client}");
                 this.Clients.Add(client);
-                UpdateSearchFilter();
+                this.UpdateSearchFilter();
             }
         }
 
@@ -219,47 +268,61 @@ namespace TestWpfAppStarikov.ViewModels
         /// <summary>
         /// Method to invoke when the EditClient command is executed.
         /// </summary>
+        /// <returns>
+        /// The <see cref="Task"/>.
+        /// </returns>
         private async Task OnEditClientExecute()
         {
-            // Note that we use the type factory here because it will automatically take care of any dependencies
+            // Note that I use the type factory here because it will automatically take care of any dependencies
             // that the PersonViewModel will add in the future
             var typeFactory = this.GetTypeFactory();
-            var clientWindowViewModel = typeFactory.CreateInstanceWithParametersAndAutoCompletion<ClientWindowViewModel>(this.SelectedClient, "Edit Item");
+            var editTitle = (string)Application.Current.FindResource("EditTitle") ?? "Сlient Id: {0}";
+            var clientWindowViewModel = typeFactory.CreateInstanceWithParametersAndAutoCompletion<ClientWindowViewModel>(this.SelectedClient, string.Format(editTitle, this.SelectedClient.Id));
             await this.m_uiVisualizerService.ShowDialogAsync(clientWindowViewModel);
-            m_pleaseWaitService.Show();
+            this.m_pleaseWaitService.Show();
             try
             {
-                m_repositoryService.UpdateClient(this.SelectedClient);
+                this.m_repositoryService.UpdateClient(this.SelectedClient);
             }
-            catch (System.Data.Entity.Infrastructure.DbUpdateConcurrencyException ex)
+            catch (DbUpdateConcurrencyException ex)
             {
                 Log.Error(ex);
                 var errorMsg = (string)Application.Current.FindResource("ErrorUpdateItem");
                 var errorCaption = (string)Application.Current.FindResource("ErrorCaption");
-                await m_messageService.ShowAsync(errorMsg, icon: MessageImage.Error, caption: errorCaption);
-                m_pleaseWaitService.Hide();
+                await this.m_messageService.ShowAsync(errorMsg, icon: MessageImage.Error, caption: errorCaption);
+                this.m_pleaseWaitService.Hide();
                 return;
             }
-            catch (System.Data.Entity.Infrastructure.DbUpdateException ex)
+            catch (DbUpdateException ex)
             {
                 Log.Error(ex);
                 var errorMsg = (string)Application.Current.FindResource("ErrorUpdateItem");
                 var errorCaption = (string)Application.Current.FindResource("ErrorCaption");
-                await m_messageService.ShowAsync(errorMsg, icon: MessageImage.Error, caption: errorCaption);
-                m_pleaseWaitService.Hide();
+                await this.m_messageService.ShowAsync(errorMsg, icon: MessageImage.Error, caption: errorCaption);
+                this.m_pleaseWaitService.Hide();
                 return;
             }
-            catch (System.Data.Entity.Validation.DbEntityValidationException ex)
+            catch (DbEntityValidationException ex)
             {
                 Log.Error(ex);
                 var errorMsg = (string)Application.Current.FindResource("ErrorUpdateItem");
                 var errorCaption = (string)Application.Current.FindResource("ErrorCaption");
-                await m_messageService.ShowAsync(errorMsg, icon: MessageImage.Error, caption: errorCaption);
-                m_pleaseWaitService.Hide();
+                await this.m_messageService.ShowAsync(errorMsg, icon: MessageImage.Error, caption: errorCaption);
+                this.m_pleaseWaitService.Hide();
                 return;
             }
-            Log.Info("Client has been edited: " + this.SelectedClient.ToString());
-            UpdateSearchFilter();
+            catch (System.Data.SqlClient.SqlException ex)
+            {
+                Log.Error(ex);
+                var errorMsg = (string)Application.Current.FindResource("SqlErrorMsg");
+                var errorCaption = (string)Application.Current.FindResource("ErrorCaption");
+                await this.m_messageService.ShowAsync(errorMsg, icon: MessageImage.Error, caption: errorCaption);
+                this.m_pleaseWaitService.Hide();
+                return;
+            }
+
+            Log.Info($"Client has been edited: {this.SelectedClient}");
+            this.UpdateSearchFilter();
         }
 
         /// <summary>
@@ -279,49 +342,62 @@ namespace TestWpfAppStarikov.ViewModels
         /// <summary>
         /// Method to invoke when the RemoveClient command is executed.
         /// </summary>
+        /// <returns>
+        /// The <see cref="Task"/>.
+        /// </returns>
         private async Task OnRemoveClientExecute()
         {
-            var deleteMsg = (string)Application.Current.FindResource("DeleteItemMessage");
-            var deleteCaption = (string)Application.Current.FindResource("DeleteItemCaption");
-            if (await this.m_messageService.ShowAsync(string.Format(deleteMsg, this.SelectedClient),
+            var deleteMsg = (string)Application.Current.FindResource("DeleteItemMessage")??"Are you sure want to delete client '{0}'?";
+            var deleteCaption = (string)Application.Current.FindResource("DeleteItemCaption")??"Are you sure";
+            if (await this.m_messageService.ShowAsync(string.Format(deleteMsg, this.SelectedClient), 
                 deleteCaption, MessageButton.YesNo, MessageImage.Question) == MessageResult.Yes)
             {
-                m_pleaseWaitService.Show();
+                this.m_pleaseWaitService.Show();
                 try
                 {
-                    m_repositoryService.DeleteClient(this.SelectedClient);
+                    this.m_repositoryService.DeleteClient(this.SelectedClient);
                 }
-                catch (System.Data.Entity.Infrastructure.DbUpdateConcurrencyException ex)
+                catch (DbUpdateConcurrencyException ex)
                 {
                     Log.Error(ex);
                     var errorMsg = (string)Application.Current.FindResource("ErrorDeleteItem");
                     var errorCaption = (string)Application.Current.FindResource("ErrorCaption");
-                    await m_messageService.ShowAsync(errorMsg, icon: MessageImage.Error, caption: errorCaption);
-                    m_pleaseWaitService.Hide();
+                    await this.m_messageService.ShowAsync(errorMsg, icon: MessageImage.Error, caption: errorCaption);
+                    this.m_pleaseWaitService.Hide();
                     return;
                 }
-                catch (System.Data.Entity.Infrastructure.DbUpdateException ex)
+                catch (DbUpdateException ex)
                 {
                     Log.Error(ex);
                     var errorMsg = (string)Application.Current.FindResource("ErrorDeleteItem");
                     var errorCaption = (string)Application.Current.FindResource("ErrorCaption");
-                    await m_messageService.ShowAsync(errorMsg, icon: MessageImage.Error, caption: errorCaption);
-                    m_pleaseWaitService.Hide();
+                    await this.m_messageService.ShowAsync(errorMsg, icon: MessageImage.Error, caption: errorCaption);
+                    this.m_pleaseWaitService.Hide();
                     return;
                 }
-                catch (System.Data.Entity.Validation.DbEntityValidationException ex)
+                catch (DbEntityValidationException ex)
                 {
                     Log.Error(ex);
                     var errorMsg = (string)Application.Current.FindResource("ErrorDeleteItem");
                     var errorCaption = (string)Application.Current.FindResource("ErrorCaption");
-                    await m_messageService.ShowAsync(errorMsg, icon: MessageImage.Error, caption: errorCaption);
-                    m_pleaseWaitService.Hide();
+                    await this.m_messageService.ShowAsync(errorMsg, icon: MessageImage.Error, caption: errorCaption);
+                    this.m_pleaseWaitService.Hide();
                     return;
                 }
-                Log.Info("Client has been deleted: " + this.SelectedClient.ToString());
+                catch (System.Data.SqlClient.SqlException ex)
+                {
+                    Log.Error(ex);
+                    var errorMsg = (string)Application.Current.FindResource("SqlErrorMsg");
+                    var errorCaption = (string)Application.Current.FindResource("ErrorCaption");
+                    await this.m_messageService.ShowAsync(errorMsg, icon: MessageImage.Error, caption: errorCaption);
+                    this.m_pleaseWaitService.Hide();
+                    return;
+                }
+
+                Log.Info($"Client has been deleted: {this.SelectedClient}");
                 this.Clients.Remove(this.SelectedClient);
                 this.SelectedClient = null;
-                UpdateSearchFilter();
+                this.UpdateSearchFilter();
             }
         }
 
@@ -330,52 +406,51 @@ namespace TestWpfAppStarikov.ViewModels
         /// </summary>
         private void UpdateSearchFilter()
         {
-            if (FilteredClients == null)
+            if (this.FilteredClients == null)
             {
-                FilteredClients = new ObservableCollection<Client>();
+                this.FilteredClients = new ObservableCollection<Client>();
             }
 
-            if (string.IsNullOrWhiteSpace(SearchFilter))
+            if (string.IsNullOrWhiteSpace(this.SearchFilter))
             {
-                m_pleaseWaitService.Show(
+                this.m_pleaseWaitService.Show(
                     () =>
-                        {
-                            ((ICollection<Client>)FilteredClients).ReplaceRange(this.Clients);
-                        });
+                    {
+                        ((ICollection<Client>)this.FilteredClients).ReplaceRange(this.Clients);
+                    });
             }
             else
             {
-                var lowerSearchFilter = SearchFilter.ToLower();
+                var lowerSearchFilter = this.SearchFilter.ToLower();
                 this.m_pleaseWaitService.Show(
                     () =>
-                        {
-                            ((ICollection<Client>)FilteredClients).ReplaceRange(
-                                from client in this.Clients
-                                where
-                                    !string.IsNullOrWhiteSpace(client.LastName)
-                                    && client.LastName.ToLower().Contains(lowerSearchFilter)
-                                select client);
-                        });
+                    {
+                        ((ICollection<Client>)this.FilteredClients).ReplaceRange(
+                            from client in this.Clients
+                            where
+                                !string.IsNullOrWhiteSpace(client.LastName)
+                                && client.LastName.ToLower().Contains(lowerSearchFilter)
+                            select client);
+                    });
             }
         }
+
         #endregion
 
         #region Methods
 
+        /// <summary>
+        /// The initialize async.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="Task"/>.
+        /// </returns>
         protected override async Task InitializeAsync()
         {
-            //var families = _repositoryService.LoadFamilies();
-            m_pleaseWaitService.Show();
+            this.m_pleaseWaitService.Show();
             this.Clients = new ObservableCollection<Client>();
-            ((ICollection<Client>)this.Clients).ReplaceRange(m_repositoryService.GetAllClients());
-
-            UpdateSearchFilter();
+            this.OnRefreshExecute();
         }
-
-        //protected override async Task CloseAsync()
-        //{
-        //    //this.m_repositoryService.(this.Clients);
-        //}
 
         #endregion
     }

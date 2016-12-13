@@ -1,7 +1,16 @@
-﻿namespace TestWpfAppStarikov.ViewModels
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="ClientViewModel.cs" company="Ivan">
+//   Starikov Ivan,  2016
+// </copyright>
+// <summary>
+//   Defines the ClientViewModel type.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
+
+namespace TestWpfAppStarikov.ViewModels
 {
     using System;
-    using System.Collections.ObjectModel;
+
     using Catel;
     using Catel.Data;
     using Catel.Fody;
@@ -9,8 +18,43 @@
 
     using TestWpfAppStarikov.Models;
 
+    /// <summary>
+    /// The client view model.
+    /// </summary>
+    [NoWeaving]
     public class ClientViewModel : ViewModelBase
     {
+        /// <summary>
+        /// Register the Client property so it is known in the class.
+        /// </summary>
+        public static readonly PropertyData ClientProperty = RegisterProperty("Client", typeof(Client));
+
+        /// <summary>
+        /// Register the FirstName property so it is known in the class.
+        /// </summary>
+        public static readonly PropertyData FirstNameProperty = RegisterProperty("FirstName", typeof(string));
+
+        /// <summary>
+        /// Register the LastName property so it is known in the class.
+        /// </summary>
+        public static readonly PropertyData LastNameProperty = RegisterProperty("LastName", typeof(string));
+
+        /// <summary>
+        /// Register the Id property so it is known in the class.
+        /// </summary>
+        public static readonly PropertyData IdProperty = RegisterProperty("Id", typeof(int));
+
+        /// <summary>
+        /// Register the BirthDate property so it is known in the class.
+        /// </summary>
+        public static readonly PropertyData BirthDateProperty = RegisterProperty("BirthDate", typeof(DateTime));
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ClientViewModel"/> class.
+        /// </summary>
+        /// <param name="client">
+        /// The client.
+        /// </param>
         public ClientViewModel(Client client)
         {
             Argument.IsNotNull(() => client);
@@ -24,14 +68,9 @@
         [Model]
         public Client Client
         {
-            get { return GetValue<Client>(ClientProperty); }
-            private set { SetValue(ClientProperty, value); }
+            get { return this.GetValue<Client>(ClientProperty); }
+            private set { this.SetValue(ClientProperty, value); }
         }
-
-        /// <summary>
-        /// Register the Client property so it is known in the class.
-        /// </summary>
-        public static readonly PropertyData ClientProperty = RegisterProperty("Client", typeof(Client), null);
 
         /// <summary>
         /// Gets or sets the first name.
@@ -39,14 +78,9 @@
         [ViewModelToModel("Client")]
         public string FirstName
         {
-            get { return GetValue<string>(FirstNameProperty); }
-            set { SetValue(FirstNameProperty, value); }
+            get { return this.GetValue<string>(FirstNameProperty); }
+            set { this.SetValue(FirstNameProperty, value); }
         }
-
-        /// <summary>
-        /// Register the FirstName property so it is known in the class.
-        /// </summary>
-        public static readonly PropertyData FirstNameProperty = RegisterProperty("FirstName", typeof(string), null);
 
         /// <summary>
         /// Gets or sets the last name.
@@ -54,14 +88,9 @@
         [ViewModelToModel("Client")]
         public string LastName
         {
-            get { return GetValue<string>(LastNameProperty); }
-            set { SetValue(LastNameProperty, value); }
+            get { return this.GetValue<string>(LastNameProperty); }
+            set { this.SetValue(LastNameProperty, value); }
         }
-
-        /// <summary>
-        /// Register the LastName property so it is known in the class.
-        /// </summary>
-        public static readonly PropertyData LastNameProperty = RegisterProperty("LastName", typeof(string), null);
 
         /// <summary>
         /// Gets or sets the property value.
@@ -69,14 +98,9 @@
         [ViewModelToModel("Client")]
         public int Id
         {
-            get { return GetValue<int>(IdProperty); }
-            set { SetValue(IdProperty, value); }
+            get { return this.GetValue<int>(IdProperty); }
+            set { this.SetValue(IdProperty, value); }
         }
-
-        /// <summary>
-        /// Register the Id property so it is known in the class.
-        /// </summary>
-        public static readonly PropertyData IdProperty = RegisterProperty("Id", typeof(int), null);
 
         /// <summary>
         /// Gets or sets the property value.
@@ -84,13 +108,8 @@
         [ViewModelToModel("Client")]
         public DateTime BirthDate
         {
-            get { return GetValue<DateTime>(BirthDateProperty); }
-            set { SetValue(BirthDateProperty, value); }
+            get { return this.GetValue<DateTime>(BirthDateProperty); }
+            set { this.SetValue(BirthDateProperty, value); }
         }
-
-        /// <summary>
-        /// Register the BirthDate property so it is known in the class.
-        /// </summary>
-        public static readonly PropertyData BirthDateProperty = RegisterProperty("BirthDate", typeof(DateTime), null);
     }
 }

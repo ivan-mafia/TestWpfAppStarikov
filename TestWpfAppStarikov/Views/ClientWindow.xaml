@@ -24,13 +24,13 @@
             <ColumnDefinition Width="*" />
         </catel:StackGrid.ColumnDefinitions>
 
-        <Label Content="First name" />
+        <Label Content="{StaticResource FirstName}" />
         <TextBox Text="{Binding FirstName, ValidatesOnDataErrors=True, NotifyOnValidationError=True}" />
 
-        <Label Content="Last name" />
+        <Label Content="{StaticResource LastName}" />
         <TextBox Text="{Binding LastName, ValidatesOnDataErrors=True, NotifyOnValidationError=True}" />
 
-        <Label Content="Birth date" />
+        <Label Content="{StaticResource BirthDay}" />
         <DatePicker SelectedDate="{Binding BirthDate, Mode=TwoWay, TargetNullValue={x:Static System:DateTime.Now}}" Height="26"></DatePicker>
     </catel:StackGrid>
 </catel:DataWindow>

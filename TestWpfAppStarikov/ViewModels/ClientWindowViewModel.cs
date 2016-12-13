@@ -1,24 +1,42 @@
-﻿using System.Threading.Tasks;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="ClientWindowViewModel.cs" company="Ivan">
+//   Starikov Ivan, 2016
+// </copyright>
+// <summary>
+//   Defines the ClientWindowViewModel type.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace TestWpfAppStarikov.ViewModels
 {
-    using System;
-    using System.Collections.ObjectModel;
     using Catel;
-    using Catel.Data;
     using Catel.Fody;
-    using Catel.IoC;
     using Catel.MVVM;
     using Catel.Services;
 
     using TestWpfAppStarikov.Models;
 
+    /// <summary>
+    /// The client window view model.
+    /// </summary>
     public class ClientWindowViewModel : ViewModelBase
     {
-        private readonly IUIVisualizerService _uiVisualizerService;
-        private readonly IMessageService _messageService;
+        /// <summary>
+        /// The <c>ui</c> visualizer service.
+        /// </summary>
+        // ReSharper disable once NotAccessedField.Local
+        private readonly IUIVisualizerService m_uiVisualizerService;
 
-        private string m_titleString = String.Empty;
+        /// <summary>
+        /// The message service.
+        /// </summary>
+        // ReSharper disable once NotAccessedField.Local
+        private readonly IMessageService m_messageService;
+
+        /// <summary>
+        /// The title string.
+        /// </summary>
+        private readonly string m_titleString;
 
         public ClientWindowViewModel(Client client, string title, IUIVisualizerService uiVisualizerService, IMessageService messageService)
         {
@@ -27,93 +45,24 @@ namespace TestWpfAppStarikov.ViewModels
             Argument.IsNotNull(() => messageService);
 
             this.Client = client;
-            _uiVisualizerService = uiVisualizerService;
-            _messageService = messageService;
-            m_titleString = title;
+            this.m_uiVisualizerService = uiVisualizerService;
+            this.m_messageService = messageService;
+            this.m_titleString = title;
         }
 
-        public override string Title { get { return m_titleString; } }
+        /// <summary>
+        /// Gets the title.
+        /// </summary>
+        public override string Title => this.m_titleString;
 
+        /// <summary>
+        /// Gets or sets client. Expose attribute used to expose FirstName, LastName, Id, BirthDate.
+        /// </summary>
         [Model]
         [Expose("FirstName")]
         [Expose("LastName")]
         [Expose("Id")]
         [Expose("BirthDate")]
         public Client Client { get; set; }
-
-        ///// <summary>
-        ///// Gets the Client.
-        ///// </summary>
-        //[Model]
-        //public Client Client
-        //{
-        //    get { return GetValue<Client>(ClientProperty); }
-        //    private set { SetValue(ClientProperty, value); }
-        //}
-
-        ///// <summary>
-        ///// Register the Client property so it is known in the class.
-        ///// </summary>
-        //public static readonly PropertyData ClientProperty = RegisterProperty("Client", typeof(Client), null);
-
-        ///// <summary>
-        ///// Gets or sets the first name.
-        ///// </summary>
-        //[ViewModelToModel("Client")]
-        //public string FirstName
-        //{
-        //    get { return GetValue<string>(FirstNameProperty); }
-        //    set { SetValue(FirstNameProperty, value); }
-        //}
-
-        ///// <summary>
-        ///// Register the FirstName property so it is known in the class.
-        ///// </summary>
-        //public static readonly PropertyData FirstNameProperty = RegisterProperty("FirstName", typeof(string), null);
-
-        ///// <summary>
-        ///// Gets or sets the last name.
-        ///// </summary>
-        //[ViewModelToModel("Client")]
-        //public string LastName
-        //{
-        //    get { return GetValue<string>(LastNameProperty); }
-        //    set { SetValue(LastNameProperty, value); }
-        //}
-
-        ///// <summary>
-        ///// Register the LastName property so it is known in the class.
-        ///// </summary>
-        //public static readonly PropertyData LastNameProperty = RegisterProperty("LastName", typeof(string), null);
-
-        ///// <summary>
-        ///// Gets or sets the property value.
-        ///// </summary>
-        //[ViewModelToModel("Client")]
-        //public int Id
-        //{
-        //    get { return GetValue<int>(IdProperty); }
-        //    set { SetValue(IdProperty, value); }
-        //}
-
-        ///// <summary>
-        ///// Register the Id property so it is known in the class.
-        ///// </summary>
-        //public static readonly PropertyData IdProperty = RegisterProperty("Id", typeof(int), null);
-
-        ///// <summary>
-        ///// Gets or sets the property value.
-        ///// </summary>
-        //[ViewModelToModel("Client")]
-        //public DateTime BirthDate
-        //{
-        //    get { return GetValue<DateTime>(BirthDateProperty); }
-        //    set { SetValue(BirthDateProperty, value); }
-        //}
-
-        ///// <summary>
-        ///// Register the BirthDate property so it is known in the class.
-        ///// </summary>
-        //public static readonly PropertyData BirthDateProperty = RegisterProperty("BirthDate", typeof(DateTime), null);
     }
 }

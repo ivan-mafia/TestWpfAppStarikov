@@ -13,6 +13,7 @@
     <!--Buttons-->
     <system:String x:Key="Add">Добавить...</system:String>
     <system:String x:Key="Edit">Изменить...</system:String>
+    <system:String x:Key="EditTitle">Клиент Id: {0}</system:String>
     <system:String x:Key="Remove">Удалить</system:String>
     <system:String x:Key="Refresh">Обновить</system:String>
 
@@ -25,5 +26,6 @@
     <system:String x:Key="ErrorUpdateItem">Ошибка при изменении клиента</system:String>
     <system:String x:Key="FirstNameIsRequired">Требуется ввести имя</system:String>
     <system:String x:Key="LastNameIsRequired">Требуется ввести фамилию</system:String>
+    <system:String x:Key="SqlErrorMsg">Ошибка соединения с базой</system:String>
 
 </ResourceDictionary>

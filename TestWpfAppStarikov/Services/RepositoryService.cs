@@ -1,20 +1,40 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="RepositoryService.cs" company="Ivan">
+//   Starikov Ivan, 2016
+// </copyright>
+// <summary>
+//   Defines the RepositoryService type.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace TestWpfAppStarikov.Services
 {
-    using TestWpfAppStarikov.Models;
+    using System.Collections.Generic;
+    using System.Linq;
 
     using TestWpfAppStarikov.DbContext;
+    using TestWpfAppStarikov.Models;
+    using TestWpfAppStarikov.Services.Interfaces;
 
+    /// <summary>
+    /// The repository service.
+    /// </summary>
     public class RepositoryService : IRepositoryService
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RepositoryService"/> class.
+        /// </summary>
+        // ReSharper disable once EmptyConstructor
         public RepositoryService()
-        { }
+        {
+        }
 
+        /// <summary>
+        /// The get all clients.
+        /// </summary>
+        /// <returns>
+        /// The list of all clients.
+        /// </returns>
         public ICollection<Client> GetAllClients()
         {
             using (ClientContext context = new ClientContext())
@@ -23,6 +43,15 @@ namespace TestWpfAppStarikov.Services
             }
         }
 
+        /// <summary>
+        /// The get clients last name filtered.
+        /// </summary>
+        /// <param name="filterText">
+        /// The filter text.
+        /// </param>
+        /// <returns>
+        /// The list of all clients filtered by last name.
+        /// </returns>
         public ICollection<Client> GetClientsLastNameFiltered(string filterText)
         {
             using (ClientContext context = new ClientContext())
@@ -31,6 +60,12 @@ namespace TestWpfAppStarikov.Services
             }
         }
 
+        /// <summary>
+        /// Inserts the client.
+        /// </summary>
+        /// <param name="client">
+        /// The client.
+        /// </param>
         public void InsertClient(Client client)
         {
             if (client != null)
@@ -40,9 +75,14 @@ namespace TestWpfAppStarikov.Services
                     Repository.Insert(client, context);
                 }
             }
-
         }
 
+        /// <summary>
+        /// Inserts the list of client.
+        /// </summary>
+        /// <param name="clients">
+        /// The list of clients.
+        /// </param>
         public void InsertClient(IEnumerable<Client> clients)
         {
             if (clients != null)
@@ -54,6 +94,12 @@ namespace TestWpfAppStarikov.Services
             }
         }
 
+        /// <summary>
+        /// Updates client entity.
+        /// </summary>
+        /// <param name="client">
+        /// The client.
+        /// </param>
         public void UpdateClient(Client client)
         {
             using (ClientContext context = new ClientContext())
@@ -73,6 +119,12 @@ namespace TestWpfAppStarikov.Services
             }
         }
 
+        /// <summary>
+        /// Deletes client.
+        /// </summary>
+        /// <param name="client">
+        /// The client.
+        /// </param>
         public void DeleteClient(Client client)
         {
             using (ClientContext context = new ClientContext())
@@ -86,6 +138,12 @@ namespace TestWpfAppStarikov.Services
             }
         }
 
+        /// <summary>
+        /// The is clients empty.
+        /// </summary>
+        /// <returns>
+        /// The <see cref="bool"/>.
+        /// </returns>
         public bool IsClientsEmpty()
         {
             using (ClientContext context = new ClientContext())

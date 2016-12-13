@@ -1,5 +1,8 @@
 ﻿namespace TestWpfAppStarikov
 {
+    using System;
+    using System.Data.Entity.Infrastructure;
+    using System.Data.Entity.Validation;
     using System.Globalization;
     using System.Windows;
     using Catel.IoC;
@@ -9,7 +12,7 @@
 
     using TestWpfAppStarikov.DbContext;
     using TestWpfAppStarikov.Services;
-
+    using TestWpfAppStarikov.Services.Interfaces;
     using TestWpfAppStarikov.ViewModels;
     using TestWpfAppStarikov.Views;
 
@@ -48,10 +51,29 @@
             var messageService = dependencyResolver.Resolve<IMessageService>();
             var navigationService = dependencyResolver.Resolve<IUIVisualizerService>();
 
-            if (repositoryService.IsClientsEmpty())
+            try
             {
-                Log.Info("Clients table empty. Insert test data.");
-                repositoryService.InsertClient(TestData.Clients());
+                if (repositoryService.IsClientsEmpty())
+                {
+                    Log.Info("Clients table empty. Insert test data.");
+                    repositoryService.InsertClient(TestData.Clients());
+                }
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                Log.Error(ex);
+            }
+            catch (DbUpdateException ex)
+            {
+                Log.Error(ex);
+            }
+            catch (DbEntityValidationException ex)
+            {
+                Log.Error(ex);
+            }
+            catch (System.Data.SqlClient.SqlException ex)
+            {
+                Log.Error(ex,"sql error");
             }
 
             Log.Info("Calling base.OnStartup");

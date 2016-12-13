@@ -1,85 +1,136 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="Repository.cs" company="Ivan">
+//   Starikov Ivan, 2016
+// </copyright>
+// <summary>
+//   The repository. It is manipulates entities in db context.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace TestWpfAppStarikov.DbContext
 {
+    using System.Collections.Generic;
     using System.Data.Entity;
+    using System.Linq;
 
-    using TestWpfAppStarikov.Models;
-
+    /// <summary>
+    /// The repository. It is manipulates entities in database context.
+    /// </summary>
     public class Repository
     {
-        public static IQueryable<TEntity> Select<TEntity>(DbContext context)
-    where TEntity : class
+        /// <summary>
+        /// Loads data from context.
+        /// </summary>
+        /// <param name="context">
+        /// The context.
+        /// </param>
+        /// <typeparam name="TEntity">
+        /// Selected entity.
+        /// </typeparam>
+        /// <returns>
+        /// The <see cref="IQueryable"/>.
+        /// </returns>
+        public static IQueryable<TEntity> Select<TEntity>(DbContext context) where TEntity : class
         {
-            //ClientContext context = new ClientContext();
-            // Здесь мы можем указывать различные настройки контекста,
-            // например выводить в отладчик сгенерированный SQL-код
-            context.Database.Log = (s => System.Diagnostics.Debug.WriteLine(s));
-            // Загрузка данных с помощью универсального метода Set
+            // Context settings.
+            context.Database.Log = s => System.Diagnostics.Debug.WriteLine(s);
+
+            // Loading data with <c>Set</c> method.
             return context.Set<TEntity>();
         }
 
+        /// <summary>
+        /// Inserts entity data in context.
+        /// </summary>
+        /// <param name="entity">
+        /// The entity.
+        /// </param>
+        /// <param name="context">
+        /// The context.
+        /// </param>
+        /// <typeparam name="TEntity">
+        /// Selected entity type.
+        /// </typeparam>
         public static void Insert<TEntity>(TEntity entity, DbContext context) where TEntity : class
         {
-            // Настройки контекста
-            //using (ClientContext context = new ClientContext())
-            //{
-                context.Database.Log = (s => System.Diagnostics.Debug.WriteLine(s));
+            // Context settings.
+            context.Database.Log = s => System.Diagnostics.Debug.WriteLine(s);
 
-                context.Entry(entity).State = EntityState.Added;
-                context.SaveChanges();
-            //}
+            context.Entry(entity).State = EntityState.Added;
+            context.SaveChanges();
         }
 
         /// <summary>
-        /// Запись нескольких полей в БД
+        /// Inserts several entities data in context.
         /// </summary>
+        /// <param name="entities">
+        /// The list of entities.
+        /// </param>
+        /// <param name="context">
+        /// The context.
+        /// </param>
+        /// <typeparam name="TEntity">
+        /// Selected entity type.
+        /// </typeparam>
         public static void Insert<TEntity>(IEnumerable<TEntity> entities, DbContext context) where TEntity : class
         {
-            // Настройки контекста
-            //using (ClientContext context = new ClientContext())
-            //{
+            // Context settings.
+            // Switch off auto detect changes and validation for optimisation purpuses.
+            context.Configuration.AutoDetectChangesEnabled = false;
+            context.Configuration.ValidateOnSaveEnabled = false;
 
-                // Отключаем отслеживание и проверку изменений для оптимизации вставки множества полей
-                context.Configuration.AutoDetectChangesEnabled = false;
-                context.Configuration.ValidateOnSaveEnabled = false;
+            context.Database.Log = s => System.Diagnostics.Debug.WriteLine(s);
 
-                context.Database.Log = (s => System.Diagnostics.Debug.WriteLine(s));
+            foreach (TEntity entity in entities)
+            {
+                context.Entry(entity).State = EntityState.Added;
+            }
 
+            context.SaveChanges();
 
-                foreach (TEntity entity in entities) context.Entry(entity).State = EntityState.Added;
-                context.SaveChanges();
-
-                context.Configuration.AutoDetectChangesEnabled = true;
-                context.Configuration.ValidateOnSaveEnabled = true;
-            //}
+            context.Configuration.AutoDetectChangesEnabled = true;
+            context.Configuration.ValidateOnSaveEnabled = true;
         }
 
-        public static void Update<TEntity>(TEntity entity, DbContext context)
-    where TEntity : class
+        /// <summary>
+        /// Updates entity data in context.
+        /// </summary>
+        /// <param name="entity">
+        /// The entity.
+        /// </param>
+        /// <param name="context">
+        /// The context.
+        /// </param>
+        /// <typeparam name="TEntity">
+        /// Selected entity type.
+        /// </typeparam>
+        public static void Update<TEntity>(TEntity entity, DbContext context) where TEntity : class
         {
-            //using (ClientContext context = new ClientContext())
-            //{
-                // Настройки контекста
-                context.Database.Log = (s => System.Diagnostics.Debug.WriteLine(s));
+            // Context settings.
+            context.Database.Log = s => System.Diagnostics.Debug.WriteLine(s);
 
-                context.Entry<TEntity>(entity).State = EntityState.Modified;
-                context.SaveChanges();
-            //}
+            context.Entry(entity).State = EntityState.Modified;
+            context.SaveChanges();
         }
 
-        public static void Delete<TEntity>(TEntity entity, DbContext context)
-    where TEntity : class
+        /// <summary>
+        /// Deletes data in context.
+        /// </summary>
+        /// <param name="entity">
+        /// The entity.
+        /// </param>
+        /// <param name="context">
+        /// The context.
+        /// </param>
+        /// <typeparam name="TEntity">
+        /// Selected entity type.
+        /// </typeparam>
+        public static void Delete<TEntity>(TEntity entity, DbContext context) where TEntity : class
         {
-            // Настройки контекста
-            //ClientContext context = new ClientContext();
-            context.Database.Log = (s => System.Diagnostics.Debug.WriteLine(s));
+            // Context settings.
+            context.Database.Log = s => System.Diagnostics.Debug.WriteLine(s);
 
-            context.Entry<TEntity>(entity).State = EntityState.Deleted;
+            context.Entry(entity).State = EntityState.Deleted;
             context.SaveChanges();
         }
     }
