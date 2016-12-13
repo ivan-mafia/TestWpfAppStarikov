@@ -17,5 +17,11 @@ namespace TestWpfAppStarikov.DbContext
         { }
 
         public DbSet<Client> Clients { get; set; }
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Client>().Ignore(t => t.IsDirty).Ignore(t => t.IsReadOnly);
+            base.OnModelCreating(modelBuilder);
+        }
     }
 }

@@ -4,6 +4,7 @@
     using System.Collections.ObjectModel;
     using Catel;
     using Catel.Data;
+    using Catel.Fody;
     using Catel.MVVM;
 
     using TestWpfAppStarikov.Models;

@@ -61,7 +61,16 @@ namespace TestWpfAppStarikov.ViewModels
         /// <value>The title.</value>
         public override string Title { get { return m_title; } }
 
-        /// <summary>
+        public ObservableCollection<Client> Clients { get; set; }
+
+        public ObservableCollection<Client> FilteredClients { get; set; }
+
+        public string SearchFilter { get; set; }
+
+        public Client SelectedClient { get; set; }
+
+
+        /*/// <summary>
         /// Gets the clients.
         /// </summary>
         public ObservableCollection<Client> Clients
@@ -117,6 +126,7 @@ namespace TestWpfAppStarikov.ViewModels
         /// Register the SelectedClient property so it is known in the class.
         /// </summary>
         public static readonly PropertyData SelectedClientProperty = RegisterProperty("SelectedClient", typeof(Client),null);
+        */
         #endregion
 
         #region Commands

@@ -1,16 +1,12 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="Client.cs" company="IS">
-// COPYRIGHT (c) Starikov Ivan,  2016.
-// </copyright>
-// <summary>
-//   Defines the Client type.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace TestWpfAppStarikov.Models
 {
-    using System;
-    using System.Collections.Generic;
+    using System.Collections.ObjectModel;
     using System.Windows;
 
     using Catel.Data;
