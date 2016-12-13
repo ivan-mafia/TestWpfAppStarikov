@@ -18,6 +18,7 @@ namespace TestWpfAppStarikov.DbContext
     /// </summary>
     public class ClientContext : DbContext
     {
+        #region Constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="ClientContext"/> class.
         /// </summary>
@@ -25,12 +26,16 @@ namespace TestWpfAppStarikov.DbContext
             : base("clientsdb")
         {
         }
+        #endregion
 
+        #region Public Properties
         /// <summary>
         /// Gets or sets the clients.
         /// </summary>
         public DbSet<Client> Clients { get; set; }
+        #endregion
 
+        #region Private, Protected Methods
         /// <summary>
         /// The on model creating.
         /// </summary>
@@ -41,6 +46,7 @@ namespace TestWpfAppStarikov.DbContext
         {
             modelBuilder.Entity<Client>().Ignore(t => t.IsDirty).Ignore(t => t.IsReadOnly);
             base.OnModelCreating(modelBuilder);
-        }
+        } 
+        #endregion
     }
 }

@@ -18,6 +18,7 @@ namespace TestWpfAppStarikov.DbContext
     /// </summary>
     public class Repository
     {
+        #region Public Methods
         /// <summary>
         /// Loads data from context.
         /// </summary>
@@ -132,6 +133,7 @@ namespace TestWpfAppStarikov.DbContext
 
             context.Entry(entity).State = EntityState.Deleted;
             context.SaveChanges();
-        }
+        } 
+        #endregion
     }
 }

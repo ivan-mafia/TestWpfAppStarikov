@@ -6,7 +6,8 @@
 				  xmlns:views="clr-namespace:TestWpfAppStarikov.Views"
 				  xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
 				  ShowInTaskbar="True" ResizeMode="CanResize" SizeToContent="Manual" WindowStartupLocation="Manual" WindowState="Normal" Background="#1E1E1E"
-                  Height="500" Width="600">
+                  Height="500" Width="600"
+                  MinHeight="300" MinWidth="300">
 
     <!-- Resources -->
     <catel:DataWindow.Resources>

@@ -6,6 +6,7 @@
 //   MainWindow view model.
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
+
 namespace TestWpfAppStarikov.ViewModels
 {
     using System;
@@ -13,6 +14,7 @@ namespace TestWpfAppStarikov.ViewModels
     using System.Collections.ObjectModel;
     using System.Data.Entity.Infrastructure;
     using System.Data.Entity.Validation;
+    using System.Data.SqlClient;
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using System.Threading.Tasks;
@@ -20,6 +22,7 @@ namespace TestWpfAppStarikov.ViewModels
 
     using Catel;
     using Catel.Collections;
+    using Catel.Data;
     using Catel.IoC;
     using Catel.Logging;
     using Catel.MVVM;
@@ -33,12 +36,21 @@ namespace TestWpfAppStarikov.ViewModels
     /// </summary>
     public class MainWindowViewModel : ViewModelBase
     {
+        #region Private Static Fields
         /// <summary>
         /// The logger.
         /// </summary>
         [SuppressMessage("StyleCopPlus.StyleCopPlusRules", "SP0100:AdvancedNamingRules", Justification = "Reviewed. Suppression is OK here.")]
         private static readonly ILog Log = LogManager.GetCurrentClassLogger();
 
+        /// <summary>
+        /// Register the SearchFilter property so it is known in the class.
+        /// </summary>
+        public static readonly PropertyData SearchFilterProperty = RegisterProperty("SearchFilter", typeof(string), null,
+            (sender, e) => ((MainWindowViewModel)sender).UpdateSearchFilter());
+        #endregion
+
+        #region Private Fields
         /// <summary>
         /// The repository service.
         /// </summary>
@@ -63,7 +75,9 @@ namespace TestWpfAppStarikov.ViewModels
         /// The m_title.
         /// </summary>
         private readonly string m_title = (string)Application.Current.FindResource("MainTitle");
+        #endregion
 
+        #region Constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="MainWindowViewModel"/> class.
         /// </summary>
@@ -95,10 +109,10 @@ namespace TestWpfAppStarikov.ViewModels
             this.Refresh = new Command(this.OnRefreshExecute);
             this.EditClient = new TaskCommand(this.OnEditClientExecute, this.OnEditClientCanExecute);
             this.RemoveClient = new TaskCommand(this.OnRemoveClientExecute, this.OnRemoveClientCanExecute);
-        }
+        } 
+        #endregion
 
-        #region Properties
-
+        #region Public Properties
         /// <summary>
         /// Gets the title of the view model.
         /// </summary>
@@ -116,9 +130,13 @@ namespace TestWpfAppStarikov.ViewModels
         public ObservableCollection<Client> FilteredClients { get; set; }
 
         /// <summary>
-        /// Gets or sets search filter.
+        /// Gets or sets the search filter.
         /// </summary>
-        public string SearchFilter { get; set; }
+        public string SearchFilter
+        {
+            get { return this.GetValue<string>(SearchFilterProperty); }
+            set { this.SetValue(SearchFilterProperty, value); }
+        }
 
         /// <summary>
         /// Gets or sets selected client. Used for selected item in view.
@@ -151,7 +169,6 @@ namespace TestWpfAppStarikov.ViewModels
                 var errorCaption = (string)Application.Current.FindResource("ErrorCaption");
                 await this.m_messageService.ShowAsync(errorMsg, icon: MessageImage.Error, caption: errorCaption);
                 this.m_pleaseWaitService.Hide();
-                return;
             }
             catch (DbUpdateException ex)
             {
@@ -160,7 +177,6 @@ namespace TestWpfAppStarikov.ViewModels
                 var errorCaption = (string)Application.Current.FindResource("ErrorCaption");
                 await this.m_messageService.ShowAsync(errorMsg, icon: MessageImage.Error, caption: errorCaption);
                 this.m_pleaseWaitService.Hide();
-                return;
             }
             catch (DbEntityValidationException ex)
             {
@@ -169,9 +185,8 @@ namespace TestWpfAppStarikov.ViewModels
                 var errorCaption = (string)Application.Current.FindResource("ErrorCaption");
                 await this.m_messageService.ShowAsync(errorMsg, icon: MessageImage.Error, caption: errorCaption);
                 this.m_pleaseWaitService.Hide();
-                return;
             }
-            catch (System.Data.SqlClient.SqlException ex)
+            catch (SqlException ex)
             {
                 Log.Error(ex, "sql error");
                 var errorMsg = (string)Application.Current.FindResource("SqlErrorMsg");
@@ -196,6 +211,7 @@ namespace TestWpfAppStarikov.ViewModels
         {
             var client = new Client { BirthDate = DateTime.Now };
             var addTitle = (string)Application.Current.FindResource("Add") ?? "Add";
+
             // Note that I use the type factory here because it will automatically take care of any dependencies
             // that the ClientWindowViewModel will add in the future
             var typeFactory = this.GetTypeFactory();
@@ -235,7 +251,7 @@ namespace TestWpfAppStarikov.ViewModels
                     this.m_pleaseWaitService.Hide();
                     return;
                 }
-                catch (System.Data.SqlClient.SqlException ex)
+                catch (SqlException ex)
                 {
                     Log.Error(ex);
                     var errorMsg = (string)Application.Current.FindResource("SqlErrorMsg");
@@ -311,7 +327,7 @@ namespace TestWpfAppStarikov.ViewModels
                 this.m_pleaseWaitService.Hide();
                 return;
             }
-            catch (System.Data.SqlClient.SqlException ex)
+            catch (SqlException ex)
             {
                 Log.Error(ex);
                 var errorMsg = (string)Application.Current.FindResource("SqlErrorMsg");
@@ -384,7 +400,7 @@ namespace TestWpfAppStarikov.ViewModels
                     this.m_pleaseWaitService.Hide();
                     return;
                 }
-                catch (System.Data.SqlClient.SqlException ex)
+                catch (SqlException ex)
                 {
                     Log.Error(ex);
                     var errorMsg = (string)Application.Current.FindResource("SqlErrorMsg");
@@ -438,7 +454,6 @@ namespace TestWpfAppStarikov.ViewModels
         #endregion
 
         #region Methods
-
         /// <summary>
         /// The initialize async.
         /// </summary>
@@ -451,7 +466,6 @@ namespace TestWpfAppStarikov.ViewModels
             this.Clients = new ObservableCollection<Client>();
             this.OnRefreshExecute();
         }
-
         #endregion
     }
 }

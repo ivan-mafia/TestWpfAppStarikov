@@ -21,6 +21,7 @@ namespace TestWpfAppStarikov.ViewModels
     /// </summary>
     public class ClientWindowViewModel : ViewModelBase
     {
+        #region Private, Protected Fields
         /// <summary>
         /// The <c>ui</c> visualizer service.
         /// </summary>
@@ -37,7 +38,25 @@ namespace TestWpfAppStarikov.ViewModels
         /// The title string.
         /// </summary>
         private readonly string m_titleString;
+        #endregion
 
+        #region Constructors
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ClientWindowViewModel"/> class.
+        /// </summary>
+        /// <param name="client">
+        /// Selected client.
+        /// </param>
+        /// <param name="title">
+        /// Window title.
+        /// </param>
+        /// <param name="uiVisualizerService">
+        /// The <c>ui</c> visualizer service.
+        /// </param>
+        /// <param name="messageService">
+        /// The message service.
+        /// </param>
         public ClientWindowViewModel(Client client, string title, IUIVisualizerService uiVisualizerService, IMessageService messageService)
         {
             Argument.IsNotNull(() => client);
@@ -49,7 +68,9 @@ namespace TestWpfAppStarikov.ViewModels
             this.m_messageService = messageService;
             this.m_titleString = title;
         }
+        #endregion
 
+        #region Public Properties
         /// <summary>
         /// Gets the title.
         /// </summary>
@@ -64,5 +85,6 @@ namespace TestWpfAppStarikov.ViewModels
         [Expose("Id")]
         [Expose("BirthDate")]
         public Client Client { get; set; }
+        #endregion
     }
 }

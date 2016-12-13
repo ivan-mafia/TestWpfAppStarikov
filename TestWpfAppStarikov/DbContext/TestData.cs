@@ -20,6 +20,7 @@ namespace TestWpfAppStarikov.DbContext
     /// </summary>
     public class TestData
     {
+        #region Public Methods
         /// <summary>
         /// Initializes list of clients.
         /// </summary>
@@ -41,9 +42,40 @@ namespace TestWpfAppStarikov.DbContext
                                           FirstName = "Анна",
                                           LastName = "Григорьева",
                                           BirthDate = new DateTime(1964, 1, 1)
+                                      },
+                                  new Client
+                                      {
+                                          FirstName = "Богдан",
+                                          LastName = "Беляев",
+                                          BirthDate = new DateTime(1984, 1, 10)
+                                      },
+                                  new Client
+                                      {
+                                          FirstName = "Федосей",
+                                          LastName = "Коновалов",
+                                          BirthDate = new DateTime(1968, 6, 1)
+                                      },
+                                  new Client
+                                      {
+                                          FirstName = "Леонид",
+                                          LastName = "Абрамов",
+                                          BirthDate = new DateTime(1994, 10, 9)
+                                      },
+                                  new Client
+                                      {
+                                          FirstName = "Регина",
+                                          LastName = "Корнилова",
+                                          BirthDate = new DateTime(1964, 9, 9)
+                                      },
+                                  new Client
+                                      {
+                                          FirstName = "Иван",
+                                          LastName = "Власов",
+                                          BirthDate = new DateTime(1964, 7, 3)
                                       }
                               };
             return clients;
         }
+        #endregion
     }
 }

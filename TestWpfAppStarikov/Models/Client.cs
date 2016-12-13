@@ -20,6 +20,7 @@ namespace TestWpfAppStarikov.Models
     /// </summary>
     public class Client : ModelBase
     {
+        #region Public Properties
         /// <summary>
         /// Gets or sets the id.
         /// </summary>
@@ -39,7 +40,9 @@ namespace TestWpfAppStarikov.Models
         /// Gets or sets the last name.
         /// </summary>
         public string LastName { get; set; }
+        #endregion
 
+        #region Public Methods
         /// <summary>
         /// The to string override method.
         /// </summary>
@@ -67,7 +70,9 @@ namespace TestWpfAppStarikov.Models
 
             return fullName;
         }
+        #endregion
 
+        #region Protected Methods
         /// <summary>
         /// The validate fields.
         /// </summary>
@@ -87,6 +92,7 @@ namespace TestWpfAppStarikov.Models
                 var validMsg = (string)Application.Current.FindResource("LastNameIsRequired");
                 validationResults.Add(FieldValidationResult.CreateError("LastName", validMsg));
             }
-        }
+        } 
+        #endregion
     }
 }

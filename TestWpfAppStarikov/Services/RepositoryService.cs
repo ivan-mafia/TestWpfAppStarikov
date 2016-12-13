@@ -21,6 +21,7 @@ namespace TestWpfAppStarikov.Services
     /// </summary>
     public class RepositoryService : IRepositoryService
     {
+        #region Constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="RepositoryService"/> class.
         /// </summary>
@@ -28,7 +29,9 @@ namespace TestWpfAppStarikov.Services
         public RepositoryService()
         {
         }
+        #endregion
 
+        #region Public Properties
         /// <summary>
         /// The get all clients.
         /// </summary>
@@ -59,7 +62,9 @@ namespace TestWpfAppStarikov.Services
                 return Repository.Select<Client>(context).Where(c => c.LastName.Contains(filterText)).ToList();
             }
         }
+        #endregion
 
+        #region Public Methods
         /// <summary>
         /// Inserts the client.
         /// </summary>
@@ -151,5 +156,6 @@ namespace TestWpfAppStarikov.Services
                 return !Repository.Select<Client>(context).Any();
             }
         }
+        #endregion
     }
 }

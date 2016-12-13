@@ -24,6 +24,7 @@ namespace TestWpfAppStarikov.ViewModels
     [NoWeaving]
     public class ClientViewModel : ViewModelBase
     {
+        #region Public Static Properties
         /// <summary>
         /// Register the Client property so it is known in the class.
         /// </summary>
@@ -48,7 +49,9 @@ namespace TestWpfAppStarikov.ViewModels
         /// Register the BirthDate property so it is known in the class.
         /// </summary>
         public static readonly PropertyData BirthDateProperty = RegisterProperty("BirthDate", typeof(DateTime));
+        #endregion
 
+        #region Constructors
         /// <summary>
         /// Initializes a new instance of the <see cref="ClientViewModel"/> class.
         /// </summary>
@@ -61,7 +64,9 @@ namespace TestWpfAppStarikov.ViewModels
 
             this.Client = client;
         }
+        #endregion
 
+        #region Public Properties
         /// <summary>
         /// Gets the Client.
         /// </summary>
@@ -111,5 +116,6 @@ namespace TestWpfAppStarikov.ViewModels
             get { return this.GetValue<DateTime>(BirthDateProperty); }
             set { this.SetValue(BirthDateProperty, value); }
         }
+        #endregion
     }
 }
